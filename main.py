@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
-# from ndlib.viz.bokeh.DiffusionTrend import DiffusionTrend
+from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
 # from ndlib.viz.bokeh.DiffusionPrevalence import DiffusionPrevalence
 # from ndlib.viz.bokeh.DiffusionTrend import DiffusionTrend as BokehDiffusionTrend
 # from ndlib.viz.bokeh.MultiPlot import MultiPlot
@@ -18,14 +18,14 @@ class SIRNetworkModel:
 
         Parameters
         ----------
-        topology : str
+        `topology` : str
             The topology of the network model. 
             The available topologies are:
             - `small-world`: Watts–Strogatz graph.
             - `random`: Erdős–Rényi graph.
             - `scale-free`: Barabási–Albert graph.
 
-        y : list
+        `y` : list
             The parameters for the network model, 
             specified as a list. 
             The required parameters per topology are:
@@ -62,13 +62,13 @@ class SIRNetworkModel:
 
         Parameters
         ----------
-        beta : float
+        `beta` : float
             The probability of infection (default = 0.01).
 
-        gamma : float
+        `gamma` : float
             The probability of recovery (default = 0.005).
 
-        I : float
+        `I` : float
             The fraction of initially infected nodes (default = 0.05).
         """
         model = ep.SIRModel(self.network)
@@ -115,29 +115,30 @@ class SIRNetworkModel:
         plt.axis("off")
         plt.show()
 
-    def plot_simulation(self, path: str = 'Plots/plot'):
-        """Plots the simulation and stored as '`path`.png'."""
-        plt.figure(figsize=(12, 10))
-        plt.plot(self.trends)
-        plt.title(f"{self.topology}".capitalize(),
-                  fontsize=16, fontweight="bold")
-        plt.axis("off")
-        plt.show()
+    def plot_diffusion_trend(self, path: str = 'Plots/plot'):
+        """Plots the simulation and stores as `path`.png.
+        
+        As taken from `https://ndlib.readthedocs.io/en/latest/reference/viz/mpl/DiffusionTrend.html`:
+        "The Diffusion Trend plot compares the trends of all the statuses allowed by the diffusive model tested.
+
+        Each trend line describes the variation of the number of nodes for a given status iteration after iteration."
+        """
+        viz = DiffusionTrend(self.model, self.trends)
+        viz.plot(f'{path}.png')
 
 
 ### Example Usage ###
 NUM_NODES = 1000
 p = 0.01
-SIR_network_model = SIRNetworkModel('random', [NUM_NODES, p])
-SIR_network_model.configure_SIR_model(beta=0.01, gamma=0.005, I=0.05)
-network = SIR_network_model.network
+random_network_SIR = SIRNetworkModel('random', [NUM_NODES, p])
+random_network_SIR.configure_SIR_model(beta=0.01, gamma=0.005, I=0.05)
+network = random_network_SIR.network
 
 # Plot the network
-# SIR_network_model.plot_network()
+# random_network_SIR.plot_network()
 
 # Run the simulation
-SIR_network_model.run_simulation(200)
-iterations, trends = SIR_network_model.iters, SIR_network_model.trends
+random_network_SIR.run_simulation(200)
 
 # Plot the simulation
-SIR_network_model.plot_simulation()
+random_network_SIR.plot_diffusion_trend()

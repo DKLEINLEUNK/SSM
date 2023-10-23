@@ -52,10 +52,11 @@ class SIRNetworkModel:
         else:
             raise ValueError('Invalid topology.')
 
-        # Set the network to undirected
+        # Initialize network
         self.model = None
         self.iters = None
         self.trends = None
+        self.node_degrees_freq = None
 
     def configure_SIR_model(self, beta: float, gamma: float, I: float):
         """Configures the SIR model on networks.
@@ -83,20 +84,27 @@ class SIRNetworkModel:
 
         self.model = model
 
-    def run_simulation(self, iterations: int):
-        """Runs the simulation.
+    def plot_degree_distribution(self, path: str = 'Plots/degree_distribution'):
+        """Plots the degree distribution of the network."""
+        # Fetch the degree distribution
+        self.node_degrees_freq = nx.degree_histogram(self.network)  # frequencies of each degree value, k
+        
+        # Plot
+        plt.figure(figsize=(12, 10))
+        plt.bar(range(len(self.node_degrees_freq)),
+                self.node_degrees_freq)
+        plt.xlabel('Degree')
+        plt.ylabel('Frequency')
+        plt.title(f'Degree distribution of {self.topology} network')
+        plt.savefig(f'{path}.png', dpi=300)
 
-        Parameters
-        ----------
-        iterations : int
-            The number of iterations to run the simulation for.
-        """
+    def run_simulation(self, iterations: int):
+        """Runs the simulation."""
         self.iters = self.model.iteration_bunch(iterations)
         self.trends = self.model.build_trends(self.iters)
 
     def plot_network(self):
         """Plots the network."""
-
         plt.figure(figsize=(12, 10))
         pos = nx.spring_layout(self.network)
         edge_color = "black"
@@ -114,6 +122,7 @@ class SIRNetworkModel:
                   fontsize=16, fontweight="bold")
         plt.axis("off")
         plt.savefig('Plots/network.png', dpi=300)
+
 
     def plot_diffusion_trend(self, path: str = 'Plots/diffusion_trend'):
         """Plots the diffusion trend and stores as `path`.png.
@@ -137,6 +146,17 @@ class SIRNetworkModel:
         viz = DiffusionPrevalence(self.model, self.trends)
         viz.plot(f'{path}.png')
 
+    def get_centralities(self):
+        """Returns the degree, betweenness, and closeness centralities of the network."""
+        degree = nx.degree_centrality(self.network)
+        betweenness= nx.betweenness_centrality(self.network)
+        closeness = nx.closeness_centrality(self.network)
+        # eigenvector = nx.eigenvector_centrality(G)
+        # katz = nx.katz_centrality(G)
+        # pagerank = nx.pagerank(G)
+        # hits = nx.hits(G)
+
+        return degree, betweenness, closeness
 
 ### Example Usage ###
 num_nodes = 1000
@@ -146,11 +166,17 @@ random_network_SIR.configure_SIR_model(beta=0.01, gamma=0.005, I=0.05)
 network = random_network_SIR.network
 
 # Plot network
-random_network_SIR.plot_network()
+# random_network_SIR.plot_network()
 
 # Run simulation
-random_network_SIR.run_simulation(200)
+# random_network_SIR.run_simulation(200)
 
 # Plot diffusion trend and prevalence
-random_network_SIR.plot_diffusion_trend()
-random_network_SIR.plot_diffusion_prevalence()
+# random_network_SIR.plot_diffusion_trend()
+# random_network_SIR.plot_diffusion_prevalence()
+
+# Plot degree distribution
+# random_network_SIR.plot_degree_distribution()
+
+# Get centralities
+# print(random_network_SIR.get_centralities())

@@ -4,7 +4,7 @@ import networkx as nx
 import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
-# from ndlib.viz.bokeh.DiffusionPrevalence import DiffusionPrevalence
+from ndlib.viz.mpl.DiffusionPrevalence import DiffusionPrevalence
 # from ndlib.viz.bokeh.DiffusionTrend import DiffusionTrend as BokehDiffusionTrend
 # from ndlib.viz.bokeh.MultiPlot import MultiPlot
 # import ndlib.models.epidemics as ep
@@ -113,11 +113,11 @@ class SIRNetworkModel:
         plt.title(f"{self.topology}".capitalize(),
                   fontsize=16, fontweight="bold")
         plt.axis("off")
-        plt.show()
+        plt.savefig('Plots/network.png', dpi=300)
 
-    def plot_diffusion_trend(self, path: str = 'Plots/plot'):
-        """Plots the simulation and stores as `path`.png.
-        
+    def plot_diffusion_trend(self, path: str = 'Plots/diffusion_trend'):
+        """Plots the diffusion trend and stores as `path`.png.
+
         As taken from `https://ndlib.readthedocs.io/en/latest/reference/viz/mpl/DiffusionTrend.html`:
         "The Diffusion Trend plot compares the trends of all the statuses allowed by the diffusive model tested.
 
@@ -126,19 +126,31 @@ class SIRNetworkModel:
         viz = DiffusionTrend(self.model, self.trends)
         viz.plot(f'{path}.png')
 
+    def plot_diffusion_prevalence(self, path: str = 'Plots/diffusion_prevalence'):
+        """Plots the diffusion prevalence and stores as `path`.png.
+
+        As taken from `https://ndlib.readthedocs.io/en/latest/reference/viz/mpl/DiffusionPrevalence.html`:
+        "The Diffusion Prevalence plot compares the delta-trends of all the statuses allowed by the diffusive model tested.
+
+        Each trend line describes the delta of the number of nodes for a given status iteration after iteration."
+        """
+        viz = DiffusionPrevalence(self.model, self.trends)
+        viz.plot(f'{path}.png')
+
 
 ### Example Usage ###
-NUM_NODES = 1000
+num_nodes = 1000
 p = 0.01
-random_network_SIR = SIRNetworkModel('random', [NUM_NODES, p])
+random_network_SIR = SIRNetworkModel('random', [num_nodes, p])
 random_network_SIR.configure_SIR_model(beta=0.01, gamma=0.005, I=0.05)
 network = random_network_SIR.network
 
-# Plot the network
-# random_network_SIR.plot_network()
+# Plot network
+random_network_SIR.plot_network()
 
-# Run the simulation
+# Run simulation
 random_network_SIR.run_simulation(200)
 
-# Plot the simulation
+# Plot diffusion trend and prevalence
 random_network_SIR.plot_diffusion_trend()
+random_network_SIR.plot_diffusion_prevalence()

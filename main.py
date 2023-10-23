@@ -1,16 +1,22 @@
+# from bokeh.io import output_notebook, show
 import matplotlib.pyplot as plt
 import networkx as nx
 import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
+# from ndlib.viz.bokeh.DiffusionTrend import DiffusionTrend
+# from ndlib.viz.bokeh.DiffusionPrevalence import DiffusionPrevalence
+# from ndlib.viz.bokeh.DiffusionTrend import DiffusionTrend as BokehDiffusionTrend
+# from ndlib.viz.bokeh.MultiPlot import MultiPlot
+# import ndlib.models.epidemics as ep
 
 
 class SIRNetworkModel:
     """Class for generating SIR network models."""
 
     def __init__(self, topology: str, y: list):
-        """Class for generating SIR network models.
+        """Initializes the SIR network model.
 
-        Attributes
+        Parameters
         ----------
         topology : str
             The topology of the network model. 
@@ -93,17 +99,26 @@ class SIRNetworkModel:
 
         plt.figure(figsize=(12, 10))
         pos = nx.spring_layout(self.network)
-        EDGE_COLOR = "black"
-        EDGE_WIDTH = 0.01
+        edge_color = "black"
+        edge_width = 0.01
         nx.draw(
             self.network,
             pos,
             node_size=10,
             node_color="r",
             with_labels=False,
-            edge_color=EDGE_COLOR,
-            width=EDGE_WIDTH,
+            edge_color=edge_color,
+            width=edge_width,
         )
+        plt.title(f"{self.topology}".capitalize(),
+                  fontsize=16, fontweight="bold")
+        plt.axis("off")
+        plt.show()
+
+    def plot_simulation(self, path: str = 'Plots/plot'):
+        """Plots the simulation and stored as '`path`.png'."""
+        plt.figure(figsize=(12, 10))
+        plt.plot(self.trends)
         plt.title(f"{self.topology}".capitalize(),
                   fontsize=16, fontweight="bold")
         plt.axis("off")
@@ -111,15 +126,18 @@ class SIRNetworkModel:
 
 
 ### Example Usage ###
-num_nodes = 1000
+NUM_NODES = 1000
 p = 0.01
-SIR_network_model = SIRNetworkModel('random', [num_nodes, p])
+SIR_network_model = SIRNetworkModel('random', [NUM_NODES, p])
 SIR_network_model.configure_SIR_model(beta=0.01, gamma=0.005, I=0.05)
 network = SIR_network_model.network
 
 # Plot the network
-SIR_network_model.plot_network()
+# SIR_network_model.plot_network()
 
 # Run the simulation
 SIR_network_model.run_simulation(200)
 iterations, trends = SIR_network_model.iters, SIR_network_model.trends
+
+# Plot the simulation
+SIR_network_model.plot_simulation()

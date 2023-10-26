@@ -61,6 +61,10 @@ class SIRNetworkModel:
         self.trends = None
         self.node_degrees_freq = None
         self.num_nodes = None
+        self.t = None
+        self.X = None
+        self.Y = None
+        self.Z = None
 
     def configure_SIR_model(self, beta: float, gamma: float, I: float):
         """Configures the SIR model on networks.
@@ -92,7 +96,13 @@ class SIRNetworkModel:
         """Runs the simulation."""
         self.iters = self.model.iteration_bunch(iterations)
         self.trends = self.model.build_trends(self.iters)
-
+        
+        # Store the data properly for own plots
+        self.t = np.arange(iterations)
+        self.X = self.trends[0]['trends']['node_count'][0]
+        self.Y = self.trends[0]['trends']['node_count'][1]
+        self.Z = self.trends[0]['trends']['node_count'][2]
+        
     ### Visualization ###
     def plot_degree_distribution(self, expected=True, save=False):
         """Plots the degree distribution of the network.
@@ -104,8 +114,10 @@ class SIRNetworkModel:
         `save` : bool
             Whether to save the plot (default = False).
         """
-        if self.topology == 'random': self.plot_degree_distribution_random(expected, save)
-        else: pass # TODO add other topologies
+        if self.topology == 'random': 
+            self.plot_degree_distribution_random(expected, save)
+        else: 
+            pass # TODO add other topologies
     
     def plot_degree_distribution_random(self, expected=False, save=False):
         """Plots the degree distribution of a random network.
@@ -184,6 +196,25 @@ class SIRNetworkModel:
         if save:
             viz.plot('Plots/diffusion_trend.png')
 
+        # if test:
+        #     susceptible = [iteration['node_count'][0] for i in self.iters]
+        #     infected = [iteration['node_count'][1] for iteration in iterations]
+        #     recovered = [iteration['node_count'][2] for iteration in iterations]
+        #     time_steps = [iteration['iteration'] for iteration in iterations]
+    
+    def plot_epidemic_spread(self, save=False):
+        """Alternative to `plot_diffusion_trend` because it was ugly.
+        """
+        plt.plot(self.t, self.X, label='Susceptible')
+        plt.plot(self.t, self.Y, label='Infected')
+        plt.plot(self.t, self.Z, label='Recovered')
+        plt.xlabel('Time')
+        plt.ylabel('Number of nodes')
+        plt.title(f'SIR: Epidemic Spread on {self.topology.capitalize} Network')
+        plt.legend()
+        # plt.grid(True)
+        plt.show()
+
     def plot_diffusion_prevalence(self, save=False):
         """Plots the diffusion prevalence and stores as `path`.png.
 
@@ -233,7 +264,8 @@ network = random_network_SIR.network
 random_network_SIR.run_simulation(1000)
 
 # Plot diffusion trend and prevalence
-# random_network_SIR.plot_diffusion_trend(save=True)
+random_network_SIR.plot_diffusion_trend(save=True)
+random_network_SIR.plot_epidemic_spread()
 # random_network_SIR.plot_diffusion_prevalence(save=True)
 
 # Plot degree distribution

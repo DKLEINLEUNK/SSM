@@ -147,36 +147,11 @@ class SIRNetworkModel:
         # print(self.trends[1])
         # print('\n\nself.trends[2]:')
         # print(self.trends[2])
-        print(self.X_mean + (self.X_std))
+        # print(self.X_mean + (self.X_std))
 
-        # Pre-made plot (warning: may hurt eyes because so ugly)
-        viz = DiffusionTrend(self.model, self.trends)
-        viz.plot("diffusion.pdf", percentile=90)
-
-        # Own plot
-        plt.figure(figsize=(10, 6))
-
-        plt.plot(self.t, self.X_mean, label='Susceptible')
-        plt.fill_between(self.t, (self.X_mean - 2*self.X_std), (self.X_mean +
-                         2*self.X_std), alpha=0.2, label=r'$±2 SD$')
-
-        plt.plot(self.t, self.Y_mean, label='Infected')
-        plt.fill_between(self.t, (self.Y_mean - 2*self.Y_std), (self.Y_mean +
-                         2*self.Y_std), color='gray', alpha=0.2, label=r'$±2 SD$')
-
-        plt.plot(self.t, self.Z_mean, label='Recovered')
-        plt.fill_between(self.t, (self.Z_mean - 2*self.Z_std), (self.Z_mean +
-                         2*self.Z_std), color='gray', alpha=0.2, label=r'$±2 SD$')
-
-        plt.xlabel('Time')
-        plt.ylabel('Number of nodes')
-
-        plt.title(
-            f'SIR: Epidemic Spread on {self.topology.capitalize} Network')
-        plt.legend()
-        # plt.grid(True)
-        plt.show()
-        # print(f"{infected_nodes} initially infected nodes: {nodes}")
+        # # Pre-made plot (warning: may hurt eyes because so ugly)
+        # viz = DiffusionTrend(self.model, self.trends)
+        # viz.plot("diffusion.pdf", percentile=90)
 
     ### Visualization ###
     def plot_degree_distribution(self, expected=True, save=False):
@@ -279,19 +254,56 @@ class SIRNetworkModel:
         if save:
             viz.plot('Plots/diffusion_trend.png')
 
-    def plot_epidemic_spread(self, save=False):
+    def plot_epidemic_spread(self, multi=False, save=False):
         """Alternative to `plot_diffusion_trend` because it was ugly.
+
+        Parameters
+        ----------
+        `multi` : bool
+            Whether run_multi_simulation() was used (default = False).
         """
-        plt.plot(self.t, self.X, label='Susceptible')
-        plt.plot(self.t, self.Y, label='Infected')
-        plt.plot(self.t, self.Z, label='Recovered')
-        plt.xlabel('Time')
-        plt.ylabel('Number of nodes')
-        plt.title(
-            f'SIR: Epidemic Spread on {self.topology.capitalize} Network')
-        plt.legend()
-        # plt.grid(True)
-        plt.show()
+        if multi:
+            plt.figure(figsize=(10, 6))
+
+            plt.plot(self.t, self.X_mean, label='Susceptible')
+            plt.fill_between(self.t, 
+                             (self.X_mean - 2*self.X_std), 
+                             (self.X_mean + 2*self.X_std), 
+                             alpha=0.2, label=r'$±2 SD$')
+
+            plt.plot(self.t, self.Y_mean, label='Infected')
+            plt.fill_between(self.t, 
+                             (self.Y_mean - 2*self.Y_std), 
+                             (self.Y_mean + 2*self.Y_std), 
+                             alpha=0.2, label=r'$±2 SD$')
+
+            plt.plot(self.t, self.Z_mean, label='Recovered')
+            plt.fill_between(self.t, 
+                             (self.Z_mean - 2*self.Z_std), 
+                             (self.Z_mean + 2*self.Z_std), 
+                             alpha=0.2, label=r'$±2 SD$')
+
+            plt.xlabel('Time')
+            plt.ylabel('Number of nodes')
+
+            plt.title(
+                f'SIR: Epidemic Spread on {self.topology.capitalize} Network')
+            plt.legend()
+            # plt.grid(True)
+            plt.show()
+
+        else:
+            # print(f"{infected_nodes} initially infected nodes: {nodes}")
+            plt.plot(self.t, self.X, label='Susceptible')
+            plt.plot(self.t, self.Y, label='Infected')
+            plt.plot(self.t, self.Z, label='Recovered')
+            plt.xlabel('Time')
+            plt.ylabel('Number of nodes')
+            plt.title(
+                f'SIR: Epidemic Spread on {self.topology.capitalize} Network')
+            plt.legend()
+            # plt.grid(True)
+            plt.show()
 
         if save:
             plt.savefig('Plots/epidemic_spread.png', dpi=400)
@@ -330,28 +342,30 @@ class SIRNetworkModel:
 
         return degree, betweenness, closeness
 
+
 ### Example Usage ###
-# np.random.seed(42069) # for reproducibility
-# NUM_NODES = 750
-# P = 0.01
-# random_network_SIR = SIRNetworkModel('random', [NUM_NODES, P])
+if __name__ == '__main__':
+    np.random.seed(42069) # for reproducibility
+    NUM_NODES = 750
+    P = 0.01
+    random_network_SIR = SIRNetworkModel('random', [NUM_NODES, P])
 
-# random_network_SIR.configure_SIR_model(beta=0.01, gamma=0.005, infected_nodes=5)
+    random_network_SIR.configure_SIR_model(beta=0.01, gamma=0.005, infected_nodes=5)
 
-# # Plot network
-# random_network_SIR.plot_network()
+    # Plot network
+    random_network_SIR.plot_network()
 
-# # Run simulation
-# random_network_SIR.run_simulation(1000)
+    # Run simulation
+    random_network_SIR.run_simulation(1000)
 
-# # Plot diffusion trend and prevalence
-# random_network_SIR.plot_diffusion_trend(save=True)
-# random_network_SIR.plot_epidemic_spread()
-# # random_network_SIR.plot_diffusion_prevalence(save=True)
+    # Plot diffusion trend and prevalence
+    # random_network_SIR.plot_diffusion_trend(save=True)
+    random_network_SIR.plot_epidemic_spread()
+    # # random_network_SIR.plot_diffusion_prevalence(save=True)
 
-# # Plot degree distribution
-# # random_network_SIR.plot_degree_distribution()
-# random_network_SIR.plot_degree_distribution(expected=True, save=False)
+    # # Plot degree distribution
+    # # random_network_SIR.plot_degree_distribution()
+    # random_network_SIR.plot_degree_distribution(expected=True, save=False)
 
-# Get centralities
-# random_network_SIR.get_centralities(verbose=True)
+    # Get centralities
+    # random_network_SIR.get_centralities(verbose=True)

@@ -99,7 +99,7 @@ class SIRNetworkModel:
         
         # Store the data properly for own plots
         self.t = np.arange(iterations)
-        self.X = self.trends[0]['trends']['node_count'][0]
+        self.X = self.trends[0]['trends']['node_count'][0]  # 0 -> S, 1 -> I, 2 -> R
         self.Y = self.trends[0]['trends']['node_count'][1]
         self.Z = self.trends[0]['trends']['node_count'][2]
         
@@ -195,12 +195,6 @@ class SIRNetworkModel:
         viz = DiffusionTrend(self.model, self.trends)
         if save:
             viz.plot('Plots/diffusion_trend.png')
-
-        # if test:
-        #     susceptible = [iteration['node_count'][0] for i in self.iters]
-        #     infected = [iteration['node_count'][1] for iteration in iterations]
-        #     recovered = [iteration['node_count'][2] for iteration in iterations]
-        #     time_steps = [iteration['iteration'] for iteration in iterations]
     
     def plot_epidemic_spread(self, save=False):
         """Alternative to `plot_diffusion_trend` because it was ugly.
@@ -214,6 +208,9 @@ class SIRNetworkModel:
         plt.legend()
         # plt.grid(True)
         plt.show()
+
+        if save:
+            plt.savefig('Plots/epidemic_spread.png', dpi=400)
 
     def plot_diffusion_prevalence(self, save=False):
         """Plots the diffusion prevalence and stores as `path`.png.
@@ -251,9 +248,10 @@ class SIRNetworkModel:
 
 ### Example Usage ###
 np.random.seed(42069) # for reproducibility
-num_nodes = 750
-p = 0.01
-random_network_SIR = SIRNetworkModel('random', [num_nodes, p])
+NUM_NODES = 750
+P = 0.01
+random_network_SIR = SIRNetworkModel('random', [NUM_NODES, P])
+
 random_network_SIR.configure_SIR_model(beta=0.01, gamma=0.005, I=0.05)
 network = random_network_SIR.network
 
